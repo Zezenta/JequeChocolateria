@@ -1,57 +1,33 @@
-import ChocolateBarVisual from './ChocolateBarVisual'
-
+// Story acts as the second anchor point where the bar settles below the headline.
 const Story = () => (
-    <section className="relative isolate bg-gradient-to-b from-transparent via-[#1D0904]/85 to-transparent py-24">
-        <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -right-20 top-10 h-72 w-72 rounded-full bg-[#D4AF37]/10 blur-3xl" />
-            <div className="absolute -left-16 bottom-0 h-96 w-96 rounded-full bg-[#4CAF50]/10 blur-3xl" />
-        </div>
-        <div className="relative mx-auto grid max-w-6xl gap-16 px-6 sm:px-8 lg:grid-cols-[3fr_2fr] lg:items-center">
-            <div className="space-y-8">
-                <p className="font-serif text-sm uppercase tracking-[0.35em] text-[#D4AF37]/80">
-                    Historia Jeque
-                </p>
-                <h2 className="font-serif text-4xl text-[#D4AF37] sm:text-5xl">
-                    Del cacao ecuatoriano al lujo árabe.
-                </h2>
-                <p className="text-base leading-relaxed text-gray-200">
-                    Nuestro maestro chocolatero Martín Álvarez viajó a Dubái en
-                    2016 para pulir templados con maestros árabes. Entre zocos
-                    descubrió combinaciones con dátiles, especias y frutos secos
-                    que hoy reinterpreta con cacao amazónico de origen
-                    controlado.
-                </p>
-                <p className="text-base leading-relaxed text-gray-200">
-                    Cada barra Jeque encapsula ese viaje: cardamomo, pistacho y
-                    agua de azahar equilibrados con cacao fino ecuatoriano.
-                    Diseñamos líneas para hoteles, duty free y cadenas gourmet
-                    que buscan lujo sensorial con procesos artesanales precisos.
-                </p>
-                <div className="grid gap-8 sm:grid-cols-2">
-                    <div className="flex flex-col gap-3 border-l border-[#D4AF37]/40 pl-5">
-                        <span className="font-serif text-xl text-[#D4AF37]">
-                            Presencia regional
-                        </span>
-                        <p className="text-sm text-gray-300">
-                            Logística y soporte comercial en Ecuador, Colombia y
-                            Perú con entregas controladas.
-                        </p>
-                    </div>
-                    <div className="flex flex-col gap-3 border-l border-[#4CAF50]/40 pl-5">
-                        <span className="font-serif text-xl text-[#4CAF50]">
-                            Cacao 72%
-                        </span>
-                        <p className="text-sm text-gray-300">
-                            Seleccionamos fincas APROCAFA y fusionamos
-                            infusiones de inspiración árabe.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div className="relative flex justify-center">
-                <div className="flex aspect-[4/3] w-full max-w-md items-center justify-center overflow-hidden rounded-[2.5rem] bg-gray-200 text-sm uppercase tracking-[0.3em] text-gray-500">
-                    {/* imagen del chef en Dubái con cacao */}
-                </div>
+    <section
+        id="story"
+        className="relative isolate overflow-hidden bg-gradient-to-b from-transparent via-[#110704]/85 to-transparent py-28"
+    >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(212,175,55,0.14),_transparent_45%)]" />
+        <div className="pointer-events-none absolute -top-24 left-[10%] h-[480px] w-[480px] rounded-full bg-[#f3d479]/12 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-[-28%] right-[12%] h-[560px] w-[560px] rounded-full bg-[#4CAF50]/12 blur-[180px]" />
+
+        {/* Centered content keeps space open for the floating bar to dock. */}
+        <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-12 px-6 text-center sm:px-8">
+            <p className="font-serif text-sm uppercase tracking-[0.35em] text-[#D4AF37]/80">
+                Rellenos emblemáticos
+            </p>
+            <h2 className="font-serif text-5xl leading-tight text-[#F6EACC] sm:text-6xl">
+                Con relleno de pistacho y kunafa.
+            </h2>
+            <p className="max-w-2xl text-base leading-relaxed text-gray-200 sm:text-lg">
+                Texturas crujientes y cremosas en un solo bocado: capas de
+                pistacho, hebras de kunafa caramelizada y cacao ecuatoriano con
+                templado espejo para destacar en góndola.
+            </p>
+            {/* Scroll target: the chocolate bar canvas aligns itself here on scroll. */}
+            <div
+                id="bar-stage-story"
+                className="relative h-[260px] w-full max-w-2xl"
+                aria-hidden="true"
+            >
+                <div className="pointer-events-none absolute inset-x-16 bottom-0 h-32 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent blur-2xl" />
             </div>
         </div>
     </section>
