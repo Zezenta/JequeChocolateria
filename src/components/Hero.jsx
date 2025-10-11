@@ -53,9 +53,6 @@ const Hero = () => {
                     className="relative w-full max-w-lg flex-1 min-h-[260px] pb-4 sm:pb-8"
                     aria-hidden="true"
                 >
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 text-center text-[0.65rem] uppercase tracking-[0.4em] text-[#D4AF37]/60">
-                        Barra Jeque en movimiento
-                    </span>
                 </div>
             </div>
         </section>

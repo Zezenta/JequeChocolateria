@@ -24,53 +24,36 @@ const ChocolateBar = ({ progress }) => {
     progressRef.current = progress
 
     // `useFrame` es un hook de React Three Fiber que ejecuta una función en cada fotograma de la animación.
-    useFrame(({ clock }, delta) => {
+    useFrame(() => {
         if (!groupRef.current) return // Si la referencia no existe, no hacer nada.
 
         // Cambia la inclinación de la barra dependiendo de si está en la mitad superior o inferior del recorrido.
-        const tilt = progressRef.current < 0.5 ? 0.32 : 0.12
+        const tilt = progressRef.current;
 
         // Animación continua:
         // 1. Rotación constante sobre el eje Y. `delta` es el tiempo desde el último fotograma.
-        groupRef.current.rotation.y += delta * 0.6
+        // groupRef.current.rotation.y += delta * 0.6
         // 2. Inclinación sobre el eje X + un suave bamboleo usando `Math.sin`. `clock.elapsedTime` es el tiempo total.
-        groupRef.current.rotation.x =
-            tilt + Math.sin(clock.elapsedTime * 0.4) * 0.05
+        groupRef.current.rotation.x = tilt + Math.sin(0.4) * 0.05
         // 3. Movimiento de flotación vertical (arriba y abajo) sobre el eje Y.
-        groupRef.current.position.y = Math.sin(clock.elapsedTime * 0.6) * 0.08
+        // groupRef.current.position.y = tilt + Math.sin(0.6) * 0.08
     })
 
     // El componente retorna un grupo de mallas que forman la barra de chocolate.
     // `castShadow` hace que este objeto proyecte sombras.
     return (
         <group ref={groupRef}>
-            {/* Capa principal de chocolate */}
-            <mesh castShadow>
-                <boxGeometry args={[3.4, 0.6, 1.1]} />
+            
+            {/* Cubículo de chocolate */}
+            <mesh>
+                <boxGeometry args={[4, 0.2, 2]} />
                 <meshStandardMaterial
-                    color="#3b2015"
+                    color="#ffffffff"
                     metalness={0.25}
                     roughness={0.42}
                 />
             </mesh>
-            {/* Capa superior (relleno/detalle) */}
-            <mesh position={[0, 0.35, 0]} castShadow>
-                <boxGeometry args={[3.38, 0.1, 1.08]} />
-                <meshStandardMaterial
-                    color="#8a5c2b"
-                    metalness={0.35}
-                    roughness={0.28}
-                />
-            </mesh>
-            {/* Capa inferior (base/detalle) */}
-            <mesh position={[0, -0.33, 0]} castShadow>
-                <boxGeometry args={[3.36, 0.1, 1.06]} />
-                <meshStandardMaterial
-                    color="#1f0c05"
-                    metalness={0.2}
-                    roughness={0.5}
-                />
-            </mesh>
+
         </group>
     )
 }
@@ -96,15 +79,6 @@ const Scene = ({ progress }) => (
         {/* Renderiza el componente de la barra de chocolate y le pasa el progreso del scroll. */}
         <ChocolateBar progress={progress} />
 
-        {/* Plano que actúa como suelo para recibir las sombras de la barra. */}
-        <mesh
-            rotation={[-Math.PI / 2, 0, 0]} // Rota el plano para que esté horizontal.
-            position={[0, -0.5, 0]} // Lo posiciona debajo de la barra.
-            receiveShadow // Este objeto puede recibir sombras.
-        >
-            <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#120604" roughness={1} metalness={0} />
-        </mesh>
     </Canvas>
 )
 
@@ -142,22 +116,17 @@ const ChocolateBarExperience = () => {
             const storyRect = storyEl.getBoundingClientRect()
 
             // Mide las posiciones de los "anclajes" (puntos de inicio y fin) en la página.
-            const heroCenterPage =
-                heroRect.top + window.scrollY + heroRect.height / 2
-            const storyCenterPage =
-                storyRect.top + window.scrollY + storyRect.height / 2
+            const heroCenterPage = heroRect.top + window.scrollY + heroRect.height / 2
+            const storyCenterPage = storyRect.top + window.scrollY + storyRect.height / 2
             const heroCenterX = heroRect.left + heroRect.width / 2
             const storyCenterX = storyRect.left + storyRect.width / 2
 
             // Calcula un valor de progreso (de 0 a 1) basado en la posición del scroll.
-            const heroAnchor =
-                heroRect.top + window.scrollY + heroRect.height * 0.1
-            const storyAnchor =
-                storyRect.top + window.scrollY - window.innerHeight * 0.4
+            const heroAnchor = heroRect.top + window.scrollY + heroRect.height * 0.1
+            const storyAnchor = storyRect.top + window.scrollY - window.innerHeight * 0.4
             const focus = window.scrollY + window.innerHeight * 0.35
             const denominator = storyAnchor - heroAnchor
-            const raw =
-                denominator === 0 ? 0 : (focus - heroAnchor) / denominator
+            const raw = denominator === 0 ? 0 : (focus - heroAnchor) / denominator
             const progress = clamp(raw, 0, 1) // Asegura que el progreso esté entre 0 y 1.
 
             // Ajusta el tamaño del canvas según el ancho de la ventana (responsive).
