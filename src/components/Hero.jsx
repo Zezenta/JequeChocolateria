@@ -23,7 +23,10 @@ const Hero = () => {
                         gourmet.
                     </h1>
                     <p className="text-base leading-relaxed text-gray-200 sm:text-lg">
-                        Barras de chocolate ecuatoriano 60% rellenas de pistacho y kunafa inspiradas en Dubái, pensadas para supermercados premium, cadenas concept y pedidos corporativos.
+                        Barras de chocolate ecuatoriano 60% rellenas de pistacho
+                        y kunafa inspiradas en Dubái, pensadas para
+                        supermercados premium, cadenas concept y pedidos
+                        corporativos.
                     </p>
                     {/* Retail proof-points to support mass distribution use-case. */}
                     <div className="flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.35em] text-[#f6e7c8]/70">
@@ -52,8 +55,7 @@ const Hero = () => {
                     id="bar-stage-hero"
                     className="relative w-full max-w-lg flex-1 min-h-[260px] pb-4 sm:pb-8"
                     aria-hidden="true"
-                >
-                </div>
+                ></div>
             </div>
         </section>
     )

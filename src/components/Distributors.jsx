@@ -77,85 +77,157 @@ const Distributors = () => (
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
                     <label className="flex flex-col text-xs uppercase tracking-[0.3em] text-[#D4AF37]/70">
-                    Provincia
+                        Provincia
                         <select
                             className="mt-3 rounded-full border border-white/20 bg-[#1A1A1A] px-5 py-3 text-sm text-gray-100 outline-none transition focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] appearance-none"
                             defaultValue=""
                         >
                             <option value="" disabled hidden>
-                            Selecciona una provincia
+                                Selecciona una provincia
                             </option>
-                            <option value="azuay" className="bg-[#1A1A1A] text-gray-100">
-                            Azuay
+                            <option
+                                value="azuay"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Azuay
                             </option>
-                            <option value="bolivar" className="bg-[#1A1A1A] text-gray-100">
-                            Bolívar
+                            <option
+                                value="bolivar"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Bolívar
                             </option>
-                            <option value="canar" className="bg-[#1A1A1A] text-gray-100">
-                            Cañar
+                            <option
+                                value="canar"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Cañar
                             </option>
-                            <option value="carchi" className="bg-[#1A1A1A] text-gray-100">
-                            Carchi
+                            <option
+                                value="carchi"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Carchi
                             </option>
-                            <option value="chimborazo" className="bg-[#1A1A1A] text-gray-100">
-                            Chimborazo
+                            <option
+                                value="chimborazo"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Chimborazo
                             </option>
-                            <option value="cotopaxi" className="bg-[#1A1A1A] text-gray-100">
-                            Cotopaxi
+                            <option
+                                value="cotopaxi"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Cotopaxi
                             </option>
-                            <option value="el-oro" className="bg-[#1A1A1A] text-gray-100">
-                            El Oro
+                            <option
+                                value="el-oro"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                El Oro
                             </option>
-                            <option value="esmeraldas" className="bg-[#1A1A1A] text-gray-100">
-                            Esmeraldas
+                            <option
+                                value="esmeraldas"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Esmeraldas
                             </option>
-                            <option value="galapagos" className="bg-[#1A1A1A] text-gray-100">
-                            Galápagos
+                            <option
+                                value="galapagos"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Galápagos
                             </option>
-                            <option value="guayas" className="bg-[#1A1A1A] text-gray-100">
-                            Guayas
+                            <option
+                                value="guayas"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Guayas
                             </option>
-                            <option value="imbabura" className="bg-[#1A1A1A] text-gray-100">
-                            Imbabura
+                            <option
+                                value="imbabura"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Imbabura
                             </option>
-                            <option value="loja" className="bg-[#1A1A1A] text-gray-100">
-                            Loja
+                            <option
+                                value="loja"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Loja
                             </option>
-                            <option value="los-rios" className="bg-[#1A1A1A] text-gray-100">
-                            Los Ríos
+                            <option
+                                value="los-rios"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Los Ríos
                             </option>
-                            <option value="manabi" className="bg-[#1A1A1A] text-gray-100">
-                            Manabí
+                            <option
+                                value="manabi"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Manabí
                             </option>
-                            <option value="morona-santiago" className="bg-[#1A1A1A] text-gray-100">
-                            Morona Santiago
+                            <option
+                                value="morona-santiago"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Morona Santiago
                             </option>
-                            <option value="napo" className="bg-[#1A1A1A] text-gray-100">
-                            Napo
+                            <option
+                                value="napo"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Napo
                             </option>
-                            <option value="orellana" className="bg-[#1A1A1A] text-gray-100">
-                            Orellana
+                            <option
+                                value="orellana"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Orellana
                             </option>
-                            <option value="pastaza" className="bg-[#1A1A1A] text-gray-100">
-                            Pastaza
+                            <option
+                                value="pastaza"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Pastaza
                             </option>
-                            <option value="pichincha" className="bg-[#1A1A1A] text-gray-100">
-                            Pichincha
+                            <option
+                                value="pichincha"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Pichincha
                             </option>
-                            <option value="santa-elena" className="bg-[#1A1A1A] text-gray-100">
-                            Santa Elena
+                            <option
+                                value="santa-elena"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Santa Elena
                             </option>
-                            <option value="santo-domingo" className="bg-[#1A1A1A] text-gray-100">
-                            Santo Domingo de los Tsáchilas
+                            <option
+                                value="santo-domingo"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Santo Domingo de los Tsáchilas
                             </option>
-                            <option value="sucumbios" className="bg-[#1A1A1A] text-gray-100">
-                            Sucumbíos
+                            <option
+                                value="sucumbios"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Sucumbíos
                             </option>
-                            <option value="tungurahua" className="bg-[#1A1A1A] text-gray-100">
-                            Tungurahua
+                            <option
+                                value="tungurahua"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Tungurahua
                             </option>
-                            <option value="zamora-chinchipe" className="bg-[#1A1A1A] text-gray-100">
-                            Zamora Chinchipe
+                            <option
+                                value="zamora-chinchipe"
+                                className="bg-[#1A1A1A] text-gray-100"
+                            >
+                                Zamora Chinchipe
                             </option>
                         </select>
                     </label>
