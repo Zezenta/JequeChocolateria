@@ -19,14 +19,16 @@ const Story = () => (
                 pistacho, hebras de kunafa caramelizada y cacao ecuatoriano con
                 templado espejo para destacar en góndola.
             </p>
-            {/* Scroll target: the chocolate bar canvas aligns itself here on scroll. */}
-            <div
-                id="bar-stage-story"
-                className="relative h-[260px] w-full max-w-2xl"
-                aria-hidden="true"
-            >
-                <div className="pointer-events-none absolute inset-x-16 bottom-0 h-32 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent blur-2xl" />
-            </div>
+        </div>
+
+        {/* Scroll target: the chocolate bar canvas aligns itself here on scroll. */}
+        <div
+            id="bar-stage-story"
+            className="relative z-0 mx-auto h-[260px] w-full max-w-2xl"
+            aria-hidden="true"
+        >
+            
+        <div className="pointer-events-none absolute inset-x-16 bottom-0 h-32 rounded-full bg-gradient-to-r from-transparent via-white/20 to-transparent blur-2xl" />
         </div>
     </section>
 )
