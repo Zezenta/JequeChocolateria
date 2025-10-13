@@ -55,10 +55,14 @@ function BarRig({ screen, progress, zPlane = 0 }) {
         const wobble = Math.sin(clock.elapsedTime * 1.6) * 0.05
 
         // Rotación en X depende del progreso y añade el wobble
-        //groupRef.current.rotation.x = progress * Math.PI + wobble
+        groupRef.current.rotation.x = Math.PI
 
         // Rotación en Y ligeramente dependiente del progreso (efecto de balanceo)
-        //groupRef.current.rotation.y = Math.sin(progress * Math.PI) * 0.15
+        groupRef.current.rotation.y = Math.PI / 1.25
+
+        groupRef.current.rotation.z = Math.PI / 2.5
+
+        
     })
 
     // Renderiza una caja simple que representa la barra de chocolate
