@@ -51,18 +51,31 @@ function BarRig({ screen, progress, zPlane = 0 }) {
         // Interpola suavemente la posición actual hacia la target (movimiento suave)
         groupRef.current.position.lerp(target, 0.2)
 
-        // Aplica una oscilación (wobble) dependiente del tiempo para dar vida a la barra
-        const wobble = Math.sin(clock.elapsedTime * 1.6) * 0.05
+        const { current: group } = groupRef
+        if (!group) return
 
-        // Rotación en X depende del progreso y añade el wobble
-        groupRef.current.rotation.x = Math.PI
+        // definición de cada rotación
+        const qx = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(1, 0, 0),
+            -0.1 + (progress * 0.2)
+        )
+        const qy = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            // (Initial rotation facing slightly left, which compensates as progress goes to 1) MINUS a full 360 (PI * 2) as the progress grows. The minus is to make it spin clockwise (which makes it spin a full 360 in total plus a little more because of the initial position)
+            ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI*2
+        )
+        const qz = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 0, 1),
+            (Math.PI/2) - (progress * (Math.PI/2))
+        )
 
-        // Rotación en Y ligeramente dependiente del progreso (efecto de balanceo)
-        groupRef.current.rotation.y = Math.PI / 1.25
+        // combina los tres en orden GLOBAL (Z * X * Y)
+        const finalQ = new THREE.Quaternion()
+            .multiply(qx)
+            .multiply(qy)
+            .multiply(qz)
 
-        groupRef.current.rotation.z = Math.PI / 2.5
-
-        
+        group.quaternion.copy(finalQ)  
     })
 
     // Renderiza una caja simple que representa la barra de chocolate
@@ -133,27 +146,24 @@ export default function ChocolateBarExperience() {
             const heroRect = heroEl.getBoundingClientRect()
             const storyRect = storyEl.getBoundingClientRect()
 
-
             // focus: punto de scroll donde se considera el centro visual activo. Se define como el scroll + el 35% de la altura del viewport
             const focus = window.scrollY + window.innerHeight * 0.35
-
 
             // Coordenadas del centro de ambos elementos
             // Con esto es que la barra sabe a dónde ir
             // Coordenadas del centro del cuadro de Hero tomando en cuenta el scroll
-            const heroCenterX = heroRect.left + heroRect.width / 2;
+            const heroCenterX = heroRect.left + heroRect.width / 2
             const heroCenterPage =
-                heroRect.top + window.scrollY + heroRect.height / 2; // top + scroll para mantener constante en página desde que aparece
+                heroRect.top + window.scrollY + heroRect.height / 2 // top + scroll para mantener constante en página desde que aparece
             // Coordenadas del centro del cuadro de Story tomando en cuenta el scroll
-            const storyCenterX = storyRect.left + storyRect.width / 2;
+            const storyCenterX = storyRect.left + storyRect.width / 2
             const storyCenterPage =
-                storyRect.top + window.scrollY + storyRect.height / 2; // top + scroll para mantener constante en página desde que aparece
+                storyRect.top + window.scrollY + storyRect.height / 2 // top + scroll para mantener constante en página desde que aparece
 
-                
             // Anchors usados SOLAMENTE para definir el rango donde la barra se mueve/interpola
             // ancla del hero: inicio del movimiento. Se pone un poco más abajo del top para que no empiece a moverse justo al entrar el hero
             const heroAnchor =
-                heroRect.top + window.scrollY + heroRect.height * 0.1;
+                heroRect.top + window.scrollY + heroRect.height * 0.1
             // ancla del story: punto que al pasar el focus hace que la barra esté posicionada en el story
             const storyAnchor =
                 storyRect.top + window.scrollY - window.innerHeight * 0.3
