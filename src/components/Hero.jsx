@@ -19,8 +19,7 @@ const Hero = () => {
                         <span>Chocolate Dubái</span>
                     </div>
                     <h1 className="font-serif text-5xl leading-tight text-[#D4AF37] sm:text-6xl xl:text-7xl">
-                        Chocolate de autor para góndolas selectas y delivery
-                        gourmet.
+                        Chocolate artesanal para supermercados premium
                     </h1>
                     <p className="text-base leading-relaxed text-gray-200 sm:text-lg">
                         Barras de chocolate ecuatoriano 60% rellenas de pistacho

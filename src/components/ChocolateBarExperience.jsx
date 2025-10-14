@@ -62,7 +62,7 @@ function BarRig({ screen, progress, zPlane = 0 }) {
         const qy = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 1, 0),
             // (Initial rotation facing slightly left, which compensates as progress goes to 1) MINUS a full 360 (PI * 2) as the progress grows. The minus is to make it spin clockwise (which makes it spin a full 360 in total plus a little more because of the initial position)
-            ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI*2
+            ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI
         )
         const qz = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 0, 1),

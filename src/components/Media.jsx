@@ -11,7 +11,7 @@ const marqueeItems = [...outlets, ...outlets]
 
 // Media section stretches full-width so the ribbon feels seamless on mobile and desktop.
 const Media = () => (
-    <section className="relative isolate overflow-hidden py-20">
+    <section className="relative isolate overflow-hidden py-10">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-[#110704]/80 to-[#090302]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-6 text-center sm:px-8">

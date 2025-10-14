@@ -2,7 +2,7 @@
 const Distributors = () => (
     <section
         id="distribuidores"
-        className="relative isolate overflow-hidden bg-gradient-to-b from-[#0a0302] via-[#150802]/82 to-[#0a0302] py-28"
+        className="relative isolate overflow-hidden bg-gradient-to-b from-[#0a0302] via-[#150802]/82 to-[#0a0302] py-10 z-20"
     >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(76,175,80,0.1),_transparent_55%)]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4CAF50]/40 to-transparent" />
@@ -15,8 +15,7 @@ const Distributors = () => (
                         Distribuidores
                     </p>
                     <h2 className="font-serif text-4xl text-[#F6EACC] sm:text-5xl">
-                        Integra Jeque a tu góndola premium o catálogo de regalos
-                        corporativos.
+                        Endulza tu góndola con chocolates premium
                     </h2>
                 </div>
                 <p className="text-base leading-relaxed text-gray-200 sm:text-lg">

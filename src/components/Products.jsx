@@ -28,7 +28,7 @@ const products = [
 
 // Product grid highlights retail-ready variants along with logistics notes.
 const Products = () => (
-    <section className="relative isolate overflow-hidden bg-gradient-to-b from-transparent via-[#0b0402]/85 to-[#0a0302] py-28">
+    <section className="relative isolate overflow-hidden bg-gradient-to-b from-transparent via-[#0b0402]/85 to-[#0a0302] py-10 z-20">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
         <div className="pointer-events-none absolute -left-32 top-24 h-[520px] w-[520px] rounded-full bg-[#f3d479]/10 blur-[160px]" />
         <div className="pointer-events-none absolute right-[-15%] bottom-[-25%] h-[640px] w-[640px] rounded-full bg-[#4CAF50]/10 blur-[220px]" />
