@@ -54,22 +54,40 @@ function BarRig({ screen, progress, zPlane = 0 }) {
         const { current: group } = groupRef
         if (!group) return
 
-        // definición de cada rotación
+        // --- INSTRUCCIONES DE OPTIMIZACIÓN ---
+        // La creación de nuevos objetos (new THREE.Quaternion, new THREE.Vector3) en cada frame
+        // puede causar pausas por el recolector de basura, resultando en "tirones" (stuttering).
+        // Para optimizar, declara estas variables fuera del `useFrame` (usando useMemo o en el cuerpo del componente)
+        // y reutilízalas en cada frame.
+        //
+        // Ejemplo de refactorización:
+        // const qx = useMemo(() => new THREE.Quaternion(), [])
+        // const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), [])
+        //
+        // useFrame(() => {
+        //   ...
+        //   qx.setFromAxisAngle(axisX, angle);
+        //   ...
+        // });
+
+        // RENDIMIENTO: Se crea un nuevo Quaternion y un nuevo Vector3 en cada frame.
         const qx = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(1, 0, 0),
             -0.1 + (progress * 0.2)
         )
+        // RENDIMIENTO: Se crea un nuevo Quaternion y un nuevo Vector3 en cada frame.
         const qy = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 1, 0),
             // (Initial rotation facing slightly left, which compensates as progress goes to 1) MINUS a full 360 (PI * 2) as the progress grows. The minus is to make it spin clockwise (which makes it spin a full 360 in total plus a little more because of the initial position)
             ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI
         )
+        // RENDIMIENTO: Se crea un nuevo Quaternion y un nuevo Vector3 en cada frame.
         const qz = new THREE.Quaternion().setFromAxisAngle(
             new THREE.Vector3(0, 0, 1),
             (Math.PI/2) - (progress * (Math.PI/2))
         )
 
-        // combina los tres en orden GLOBAL (Z * X * Y)
+        // RENDIMIENTO: Se crea un Quaternion final en cada frame.
         const finalQ = new THREE.Quaternion()
             .multiply(qx)
             .multiply(qy)
@@ -99,9 +117,15 @@ function BarRig({ screen, progress, zPlane = 0 }) {
 function Scene({ progress, screen }) {
     return (
         <Canvas
+            // RENDIMIENTO: `dpr` (Device Pixel Ratio) renderiza a una resolución mayor en pantallas de alta densidad.
+            // Bajarlo a `1` puede mejorar mucho el rendimiento en GPUs de gama baja.
             dpr={[1, 1.5]}
+            // RENDIMIENTO: `antialias` suaviza los bordes, pero consume recursos de la GPU.
+            // Desactivarlo (`false`) puede aumentar los FPS.
             gl={{ antialias: true }}
             camera={{ fov: 38, position: [0, 0, 8] }}
+            // RENDIMIENTO: El cálculo de sombras dinámicas es una de las operaciones más costosas.
+            // Desactivarlo (`shadows={false}`) es una prueba clave para medir el impacto en el rendimiento.
             shadows
         >
             <ambientLight intensity={1} />
@@ -142,7 +166,9 @@ export default function ChocolateBarExperience() {
             const heroEl = document.getElementById('bar-stage-hero')
             const storyEl = document.getElementById('bar-stage-story')
             if (!heroEl || !storyEl) return
-            // BoundingClientRect relativo al viewport
+            
+            // RENDIMIENTO: `getBoundingClientRect()` fuerza al navegador a recalcular el layout de la página.
+            // Aunque se usa con `requestAnimationFrame`, en CPUs lentas y con scroll rápido, puede contribuir a la ralentización.
             const heroRect = heroEl.getBoundingClientRect()
             const storyRect = storyEl.getBoundingClientRect()
 
