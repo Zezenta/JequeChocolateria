@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { useGLTF, Stats } from '@react-three/drei';
+import { useGLTF, Environment, Lightformer, ContactShadows } from '@react-three/drei';
 
 // Ajusta el tamaño del modelo según el ancho disponible
 const getDeviceScale = (width) => {
@@ -107,21 +107,50 @@ function Scene({ progress, screen, scale }) {
             // Desactivarlo (`shadows={false}`) es una prueba clave para medir el impacto en el rendimiento.
             shadows
         >
-            <Stats />
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={0.2} color="#ffffff" />
 
-            {/* Luz direccional desde la cámara (frontal) */}
+            {/* Luz principal cálida orientada ligeramente desde la derecha */}
             <directionalLight
-                position={[0, 2, 6]} // viene desde donde está la cámara
-                intensity={5}
+                position={[1.5, 2.8, 4]}
+                intensity={1.3}
+                color="#ffdcc3"
                 castShadow
+                shadow-mapSize-width={2048}
+                shadow-mapSize-height={2048}
+                shadow-bias={-0.001}
             />
 
-            {/* Luz de relleno lateral */}
-            <directionalLight position={[5, 5, 2]} intensity={0.6} />
+            {/* Luz de relleno fría desde la izquierda para recuperar volumen */}
+            <directionalLight
+                position={[-3.5, 1.2, 2]}
+                intensity={0.4}
+                color="#c7d5ff"
+            />
 
-            {/* Luz suave desde atrás para resaltar bordes */}
-            <directionalLight position={[-4, 3, -3]} intensity={0.3} />
+            {/* Luz de contraluz para separar la silueta del fondo */}
+            <directionalLight
+                position={[-2.5, 3, -4]}
+                intensity={0.6}
+                color="#e7f2ff"
+            />
+
+            <Environment resolution={256}>
+                <Lightformer
+                    form="rect"
+                    intensity={2}
+                    rotation={[0, Math.PI / 2, 0]}
+                    position={[0, 5, -10]}
+                    scale={[12, 12, 1]}
+                />
+                <Lightformer
+                    form="ring"
+                    intensity={1.2}
+                    color="#ffb38a"
+                    position={[-6, 2, 2]}
+                    scale={8}
+                />
+            </Environment>
+
             <BarRig progress={progress} screen={screen} modelScale={scale} />
         </Canvas>
     )

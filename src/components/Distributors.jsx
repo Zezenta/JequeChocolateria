@@ -8,17 +8,17 @@ const Distributors = () => (
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4CAF50]/40 to-transparent" />
         <div className="pointer-events-none absolute -right-20 bottom-[-35%] h-[580px] w-[580px] rounded-full bg-[#D4AF37]/12 blur-[200px]" />
 
-        <div className="relative mx-auto grid w-full max-w-7xl gap-20 px-6 sm:px-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-6 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
             <div className="space-y-10">
                 <div className="space-y-4">
-                    <p className="font-serif text-sm uppercase tracking-[0.35em] text-[#D4AF37]/80">
+                    <p className="font-serif text-sm uppercase tracking-widest text-[#D4AF37]/80 lg:tracking-[0.35em]">
                         Distribuidores
                     </p>
-                    <h2 className="font-serif text-4xl text-[#F6EACC] sm:text-5xl">
+                    <h2 className="font-serif text-3xl text-[#F6EACC] sm:text-4xl lg:text-5xl">
                         Endulza tu góndola con chocolates premium
                     </h2>
                 </div>
-                <p className="text-base leading-relaxed text-gray-200 sm:text-lg">
+                <p className="text-base leading-relaxed text-gray-200 sm:text-lg break-words">
                     Proveemos fichas técnicas, empaques listos para retail y
                     planogramas sugeridos. Gestionamos cadena de frío,
                     merchandising modular y despachos programados para
@@ -26,25 +26,25 @@ const Distributors = () => (
                 </p>
                 <div className="grid gap-6 sm:grid-cols-2">
                     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm">
-                        <span className="text-xs uppercase tracking-[0.35em] text-[#4CAF50]/80">
+                        <span className="text-xs uppercase tracking-widest text-[#4CAF50]/80 lg:tracking-[0.35em]">
                             Aliados
                         </span>
                         <p className="mt-3 font-serif text-2xl text-[#D4AF37]">
                             Retail selecto
                         </p>
-                        <p className="mt-2 text-sm text-gray-400">
+                        <p className="mt-2 text-sm text-gray-400 break-words">
                             Megamaxi Gourmet, La Favorita Concept, marketplaces
                             especializados.
                         </p>
                     </div>
                     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm">
-                        <span className="text-xs uppercase tracking-[0.35em] text-[#4CAF50]/80">
+                        <span className="text-xs uppercase tracking-widest text-[#4CAF50]/80 lg:tracking-[0.35em]">
                             Servicios
                         </span>
                         <p className="mt-3 font-serif text-2xl text-[#D4AF37]">
                             Material POP
                         </p>
-                        <p className="mt-2 text-sm text-gray-400">
+                        <p className="mt-2 text-sm text-gray-400 break-words">
                             Degustaciones, exhibidores refrigerados y kits
                             corporativos personalizados.
                         </p>
@@ -57,7 +57,7 @@ const Distributors = () => (
                 onSubmit={(event) => event.preventDefault()}
             >
                 <div className="grid gap-6 sm:grid-cols-2">
-                    <label className="flex flex-col text-xs uppercase tracking-[0.3em] text-[#D4AF37]/70">
+                    <label className="flex flex-col text-xs uppercase tracking-wider text-[#D4AF37]/70 lg:tracking-[0.3em]">
                         Nombre
                         <input
                             type="text"
@@ -65,7 +65,7 @@ const Distributors = () => (
                             placeholder="Ingresa tu nombre"
                         />
                     </label>
-                    <label className="flex flex-col text-xs uppercase tracking-[0.3em] text-[#D4AF37]/70">
+                    <label className="flex flex-col text-xs uppercase tracking-wider text-[#D4AF37]/70 lg:tracking-[0.3em]">
                         Correo
                         <input
                             type="email"
@@ -75,7 +75,7 @@ const Distributors = () => (
                     </label>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
-                    <label className="flex flex-col text-xs uppercase tracking-[0.3em] text-[#D4AF37]/70">
+                    <label className="flex flex-col text-xs uppercase tracking-wider text-[#D4AF37]/70 lg:tracking-[0.3em]">
                         Provincia
                         <select
                             className="mt-3 rounded-full border border-white/20 bg-[#1A1A1A] px-5 py-3 text-sm text-gray-100 outline-none transition focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] appearance-none"
@@ -230,7 +230,7 @@ const Distributors = () => (
                             </option>
                         </select>
                     </label>
-                    <label className="flex flex-col text-xs uppercase tracking-[0.3em] text-[#D4AF37]/70">
+                    <label className="flex flex-col text-xs uppercase tracking-wider text-[#D4AF37]/70 lg:tracking-[0.3em]">
                         Teléfono
                         <input
                             type="tel"
@@ -239,7 +239,7 @@ const Distributors = () => (
                         />
                     </label>
                 </div>
-                <label className="flex flex-col text-xs uppercase tracking-[0.3em] text-[#D4AF37]/70">
+                <label className="flex flex-col text-xs uppercase tracking-wider text-[#D4AF37]/70 lg:tracking-[0.3em]">
                     Mensaje
                     <textarea
                         rows="4"
@@ -249,7 +249,7 @@ const Distributors = () => (
                 </label>
                 <button
                     type="submit"
-                    className="inline-flex w-full items-center justify-center rounded-full bg-[#D4AF37] px-10 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#3B1E0F] transition hover:bg-[#f3d479]"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-[#D4AF37] px-10 py-3 text-sm font-semibold uppercase tracking-widest text-[#3B1E0F] transition hover:bg-[#f3d479] lg:tracking-[0.35em]"
                 >
                     Enviar solicitud
                 </button>
