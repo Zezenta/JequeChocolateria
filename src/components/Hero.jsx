@@ -3,7 +3,7 @@ const Hero = () => {
     return (
         <section
             id="hero"
-            className="relative isolate overflow-hidden bg-gradient-to-b from-[#2B1207]/70 via-[#1A0804]/80 to-transparent pt-16 pb-16 sm:pt-20 sm:pb-20 md:pt-24 md:pb-24 lg:pt-16 lg:pb-16 xl:pt-12 xl:pb-12 2xl:pt-0 2xl:pb-0"
+            className="z-20 relative isolate overflow-hidden bg-gradient-to-b from-[#2B1207]/70 via-[#1A0804]/80 to-transparent pt-16 pb-16 sm:pt-20 sm:pb-20 md:pt-24 md:pb-24 lg:pt-16 lg:pb-16 xl:pt-12 xl:pb-12 2xl:pt-0 2xl:pb-0"
         >
             <div className="pointer-events-none absolute -top-44 right-[-25%] h-[520px] w-[520px] rounded-full bg-[#D4AF37]/15 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-[35%] left-[-15%] h-[620px] w-[620px] rounded-full bg-[#4CAF50]/12 blur-[180px]" />

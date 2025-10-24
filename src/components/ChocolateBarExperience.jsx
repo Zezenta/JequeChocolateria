@@ -1,6 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useGLTF, Stats } from '@react-three/drei';
+
+// Ajusta el tamaño del modelo según el ancho disponible
+const getDeviceScale = (width) => {
+    if (width <= 480) return 0.15
+    if (width <= 768) return 0.24
+    return 0.3
+}
 
 // Limita un número a un máximo o un mínimo
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
@@ -9,7 +17,7 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 const lerp = (start, end, t) => start + (end - start) * t;
 
 // --- RIG QUE MUEVE LA BARRA EN FUNCIÓN DEL SCROLL ---
-function BarRig({ screen, progress, zPlane = 0 }) {
+function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     // referencia al grupo de objetos 3D que contiene la barra
     const groupRef = useRef()
 
@@ -41,6 +49,16 @@ function BarRig({ screen, progress, zPlane = 0 }) {
         return camera.position.clone().add(dir.multiplyScalar(distance))
     }
 
+    // Crear referencias de los objetos THREEJS una sola vez
+    // Se crean para cada eje, un Quaternion y un Vector3 (eje)
+    const qx = useMemo(() => new THREE.Quaternion(), [])
+    const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), [])
+    const qy = useMemo(() => new THREE.Quaternion(), [])
+    const axisY = useMemo(() => new THREE.Vector3(0, 1, 0), [])
+    const qz = useMemo(() => new THREE.Quaternion(), [])
+    const axisZ = useMemo(() => new THREE.Vector3(0, 0, 1), [])
+    const finalQ = useMemo(() => new THREE.Quaternion(), [])
+
     // useFrame se llama en cada frame de render por react-three-fiber
     useFrame(() => {
         if (!groupRef.current) return
@@ -50,71 +68,32 @@ function BarRig({ screen, progress, zPlane = 0 }) {
 
         // Interpola suavemente la posición actual hacia la target (movimiento suave)
         groupRef.current.position.lerp(target, 0.2)
+        
+        //aplicando las instrucciones de optimización:
+        qx.setFromAxisAngle(axisX, -0.1 + (progress * 0.2))
+        qy.setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI)
+        qz.setFromAxisAngle(axisZ, (Math.PI/2) - (progress * (Math.PI/2)))
+        finalQ.multiplyQuaternions(qx, qy).multiply(qz)
 
-        const { current: group } = groupRef
-        if (!group) return
-
-        // --- INSTRUCCIONES DE OPTIMIZACIÓN ---
-        // La creación de nuevos objetos (new THREE.Quaternion, new THREE.Vector3) en cada frame
-        // puede causar pausas por el recolector de basura, resultando en "tirones" (stuttering).
-        // Para optimizar, declara estas variables fuera del `useFrame` (usando useMemo o en el cuerpo del componente)
-        // y reutilízalas en cada frame.
-        //
-        // Ejemplo de refactorización:
-        // const qx = useMemo(() => new THREE.Quaternion(), [])
-        // const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), [])
-        //
-        // useFrame(() => {
-        //   ...
-        //   qx.setFromAxisAngle(axisX, angle);
-        //   ...
-        // });
-
-        // RENDIMIENTO: Se crea un nuevo Quaternion y un nuevo Vector3 en cada frame.
-        const qx = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(1, 0, 0),
-            -0.1 + (progress * 0.2)
-        )
-        // RENDIMIENTO: Se crea un nuevo Quaternion y un nuevo Vector3 en cada frame.
-        const qy = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 1, 0),
-            // (Initial rotation facing slightly left, which compensates as progress goes to 1) MINUS a full 360 (PI * 2) as the progress grows. The minus is to make it spin clockwise (which makes it spin a full 360 in total plus a little more because of the initial position)
-            ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI
-        )
-        // RENDIMIENTO: Se crea un nuevo Quaternion y un nuevo Vector3 en cada frame.
-        const qz = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 0, 1),
-            (Math.PI/2) - (progress * (Math.PI/2))
-        )
-
-        // RENDIMIENTO: Se crea un Quaternion final en cada frame.
-        const finalQ = new THREE.Quaternion()
-            .multiply(qx)
-            .multiply(qy)
-            .multiply(qz)
-
-        group.quaternion.copy(finalQ)  
+        groupRef.current.quaternion.copy(finalQ)  
     })
 
     // Renderiza una caja simple que representa la barra de chocolate
     return (
         <group ref={groupRef}>
-            <mesh castShadow>
-                {/* boxGeometry: ancho 4, alto 0.2, profundidad 2 */}
-                <boxGeometry args={[4, 0.2, 2]} />
-                {/* Material marrón con algo de metalizado y rugosidad */}
-                <meshStandardMaterial
-                    color="#8B5C2A" //#8B5C2A es un marrón chocolate
-                    metalness={0.5}
-                    roughness={0.42}
-                />
-            </mesh>
+            <primitive 
+                object={useGLTF('barra-prueba.glb').scene} 
+                scale={modelScale} 
+                castShadow
+            />
         </group>
     )
 }
 
+useGLTF.preload("/models/mimodelo.glb");
+
 // --- ESCENA 3D ESTÁTICA ---
-function Scene({ progress, screen }) {
+function Scene({ progress, screen, scale }) {
     return (
         <Canvas
             // RENDIMIENTO: `dpr` (Device Pixel Ratio) renderiza a una resolución mayor en pantallas de alta densidad.
@@ -128,15 +107,22 @@ function Scene({ progress, screen }) {
             // Desactivarlo (`shadows={false}`) es una prueba clave para medir el impacto en el rendimiento.
             shadows
         >
-            <ambientLight intensity={1} />
-            <spotLight
-                position={[6, 6, 2]}
-                intensity={1.3}
-                angle={0.6}
-                penumbra={0.6}
+            <Stats />
+            <ambientLight intensity={0.5} />
+
+            {/* Luz direccional desde la cámara (frontal) */}
+            <directionalLight
+                position={[0, 2, 6]} // viene desde donde está la cámara
+                intensity={5}
+                castShadow
             />
-            <directionalLight position={[-4, 3, -2]} intensity={0.4} />
-            <BarRig progress={progress} screen={screen} />
+
+            {/* Luz de relleno lateral */}
+            <directionalLight position={[5, 5, 2]} intensity={0.6} />
+
+            {/* Luz suave desde atrás para resaltar bordes */}
+            <directionalLight position={[-4, 3, -3]} intensity={0.3} />
+            <BarRig progress={progress} screen={screen} modelScale={scale} />
         </Canvas>
     )
 }
@@ -147,6 +133,7 @@ export default function ChocolateBarExperience() {
         ready: false,
         progress: 0,
         screen: { x: 0, y: 0 },
+        scale: 0.3,
     })
 
     useEffect(() => {
@@ -213,11 +200,14 @@ export default function ChocolateBarExperience() {
             const screenX = clamp(currentX, 12, window.innerWidth - 12)
             const screenY = currentYViewport
 
+            const scale = getDeviceScale(window.innerWidth)
+
             // Actualiza el estado con ready=true (lista) y la posición calculada
             setState({
                 ready: true,
                 progress,
                 screen: { x: screenX, y: screenY },
+                scale,
             })
         }
 
@@ -252,7 +242,7 @@ export default function ChocolateBarExperience() {
         <div className="pointer-events-none fixed inset-0 z-10">
             {/* Scene ocupa todo el viewport y no se mueve */}
             <div className="absolute inset-0">
-                <Scene progress={state.progress} screen={state.screen} />
+                <Scene progress={state.progress} screen={state.screen} scale={state.scale} />
             </div>
         </div>
     )
