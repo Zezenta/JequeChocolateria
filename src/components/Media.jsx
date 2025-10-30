@@ -25,7 +25,7 @@ const Media = () => (
                 {marqueeItems.map((media, index) => (
                     <div
                         key={`${media.label}-${index}`}
-                        className="flex items-center gap-4 text-left text-[0.65rem] uppercase tracking-[0.35em] text-[#D4AF37]/80"
+                        className="flex items-center gap-4 text-left text-sm uppercase tracking-[0.35em] text-[#D4AF37]/80"
                     >
                         <svg
                             width="72"
