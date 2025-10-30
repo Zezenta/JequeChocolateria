@@ -90,7 +90,7 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     )
 }
 
-useGLTF.preload("/models/mimodelo.glb");
+useGLTF.preload("/barra-prueba.glb");
 
 // --- ESCENA 3D ESTÁTICA ---
 function Scene({ progress, screen, scale }) {
