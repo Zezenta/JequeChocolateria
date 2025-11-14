@@ -20,6 +20,8 @@ const lerp = (start, end, t) => start + (end - start) * t;
 function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     // referencia al grupo de objetos 3D que contiene la barra
     const groupRef = useRef()
+    const leftHalfRef = useRef()
+    const rightHalfRef = useRef()
 
     // get canvas size, camera and clock from useThree
     const { size, camera, clock } = useThree()
@@ -52,12 +54,20 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     // Crear referencias de los objetos THREEJS una sola vez
     // Se crean para cada eje, un Quaternion y un Vector3 (eje)
     const qx = useMemo(() => new THREE.Quaternion(), [])
-    const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), [])
+    const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), []) //isnt really used but whatever
     const qy = useMemo(() => new THREE.Quaternion(), [])
     const axisY = useMemo(() => new THREE.Vector3(0, 1, 0), [])
     const qz = useMemo(() => new THREE.Quaternion(), [])
     const axisZ = useMemo(() => new THREE.Vector3(0, 0, 1), [])
     const finalQ = useMemo(() => new THREE.Quaternion(), [])
+
+    // Determina si debemos mostrar las mitades (cuando progress >= 1)
+    const showHalves = progress >= 1
+    // Progreso de separación: 0 cuando progress = 1, aumenta después
+    // Ahora que progress puede ir más allá de 1, podemos usar directamente (progress - 1)
+    // para controlar la separación de manera más precisa y suave
+    const splitProgress = Math.max(0, progress - 1) // Progreso de separación basado en scroll después de progress = 1
+    const separationDistance = (splitProgress * 1.75) - 0.25// Distancia de separación en unidades 3D (ajustable)
 
     // useFrame se llama en cada frame de render por react-three-fiber
     useFrame(() => {
@@ -69,28 +79,84 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
         // Interpola suavemente la posición actual hacia la target (movimiento suave)
         groupRef.current.position.lerp(target, 0.2)
         
-        //aplicando las instrucciones de optimización:
-        qx.setFromAxisAngle(axisX, -0.1 + (progress * 0.2))
-        qy.setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (progress * (Math.PI/2 - 0.5))) - progress * Math.PI)
-        qz.setFromAxisAngle(axisZ, (Math.PI/2) - (progress * (Math.PI/2)))
+        // Aplicando las instrucciones de optimización:
+        // Usamos progress = 1 para la rotación cuando mostramos las mitades (mantiene la barra horizontal)
+        const rotationProgress = showHalves ? 1 : progress
+        qy.setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (rotationProgress * (Math.PI/2 - 0.5))) - rotationProgress * Math.PI)
+        qz.setFromAxisAngle(axisZ, (Math.PI/2) - (rotationProgress * (Math.PI/2)))
         finalQ.multiplyQuaternions(qx, qy).multiply(qz)
 
-        groupRef.current.quaternion.copy(finalQ)  
+        groupRef.current.quaternion.copy(finalQ)
+
+        // Si estamos mostrando las mitades, aplicamos la separación
+        if (showHalves && leftHalfRef.current && rightHalfRef.current) {
+            // Calculamos la dirección de separación
+            // La separación debe ser perpendicular al eje largo de la barra
+            // Asumimos que la barra se extiende a lo largo del eje Y en su orientación local
+            // Por lo tanto, separamos a lo largo del eje X local
+            const localSeparation = new THREE.Vector3(separationDistance, 0, 0)
+
+            // Aplicamos la separación simétrica: una mitad se mueve en una dirección, la otra en la opuesta
+            leftHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(-0.5))
+            rightHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(0.5))
+            
+            // Aplicamos rotación adicional en Z basada en el progreso de separación
+            const zRotation = splitProgress * 0.3 // Rotación en Z que aumenta con el scroll (ajustable)
+            const zRotationQ = new THREE.Quaternion().setFromAxisAngle(axisZ, zRotation)
+            const clockwiseFinalRotationWithZ = finalQ.clone().multiply(zRotationQ.clone().invert())
+            const anticlockwiseFinalRotationWithZ = finalQ.clone().multiply(zRotationQ)
+            
+            // Aplicamos la rotación a ambas mitades
+            leftHalfRef.current.quaternion.copy(clockwiseFinalRotationWithZ)
+            rightHalfRef.current.quaternion.copy(anticlockwiseFinalRotationWithZ)
+        }
     })
 
-    // Renderiza una caja simple que representa la barra de chocolate
+    // Cargar los modelos
+    const fullBarGltf = useGLTF('barra-prueba.glb')
+    const halfGltf = useGLTF('mitad-chocolate.glb')
+
+    // Clonar las escenas una sola vez usando useMemo para evitar recrearlas en cada render
+    const fullBarScene = useMemo(() => fullBarGltf.scene.clone(), [fullBarGltf.scene])
+    const leftHalfScene = useMemo(() => halfGltf.scene.clone(), [halfGltf.scene])
+    const rightHalfScene = useMemo(() => halfGltf.scene.clone(), [halfGltf.scene])
+
     return (
         <group ref={groupRef}>
-            <primitive 
-                object={useGLTF('barra-prueba.glb').scene} 
-                scale={modelScale} 
-                castShadow
-            />
+            {!showHalves ? (
+                // Mostrar la barra completa cuando progress < 1
+                <primitive 
+                    object={fullBarScene} 
+                    scale={modelScale} 
+                />
+            ) : (
+                // Mostrar dos mitades cuando progress >= 1
+                <>
+                    <group ref={leftHalfRef}>
+                        <primitive 
+                            object={leftHalfScene} 
+                            scale={modelScale}
+                        />
+                    </group>
+                    <group ref={rightHalfRef}>
+                        {/* Rotamos 180 grados en Y para que sea la otra mitad (simétrica) */}
+                        <group rotation={[0, Math.PI, 0]}>
+                            <primitive 
+                                object={rightHalfScene} 
+                                scale={modelScale}
+                            />
+                        </group>
+                    </group>
+                </>
+            )}
         </group>
     )
 }
 
-useGLTF.preload("/barra-prueba.glb");
+useGLTF.preload('barra-prueba.glb');
+useGLTF.preload('relleno-chocolate.glb');
+useGLTF.preload('mitad-chocolate.glb');
+
 
 // --- ESCENA 3D ESTÁTICA ---
 function Scene({ progress, screen, scale }) {
@@ -206,21 +272,25 @@ export default function ChocolateBarExperience() {
             // ancla del hero: inicio del movimiento. Se pone un poco más abajo del top para que no empiece a moverse justo al entrar el hero
             const heroAnchor =
                 heroRect.top + window.scrollY + heroRect.height * 0.1
-            // ancla del story: punto que al pasar el focus hace que la barra esté posicionada en el story
+            // ancla del story: punto que al pasar el focus hace que la barra esté posicionada en el story (progress = 1)
             const storyAnchor =
                 storyRect.top + window.scrollY - window.innerHeight * 0.3
 
-            // Calcula el progreso [0, 1] entre heroAnchor y storyAnchor según el focus
-            // Solo puede ser entre 0 y 1 usando clamp
-            // Esto es para que la barra no se mueva si el focus está antes del hero o después del story, y permanezca en su lugar inicial o final después de eso
-            const denom = storyAnchor - heroAnchor
-            const raw = denom === 0 ? 0 : (focus - heroAnchor) / denom
-            const progress = clamp(raw, 0, 1) // evita que salga de [0, 1]
+            // Calcula el progreso normalizado: 0 en heroAnchor, 1 en storyAnchor
+            // Pero permitimos que continúe más allá de 1 para trackear la separación
+            // Progress = 0 en heroAnchor, progress = 1 en storyAnchor, y puede continuar más allá
+            // Esto permite trackear el scroll después de que la barra esté horizontal para controlar la separación
+            const progressDenom = storyAnchor - heroAnchor
+            const progressNormalized = progressDenom === 0 ? 0 : (focus - heroAnchor) / progressDenom
+            // Progress puede ir más allá de 1, pero limitamos el mínimo a 0
+            const progress = Math.max(0, progressNormalized)
 
             // Interpola posiciones X e Y entre hero y story usando el progreso
-            // Como el clamp hace que sea de 0 o de 1, la barra de chocolate o está en su punto inicial, o está en el trayecto (cuando el focus está entre ambas anclas), o está en su punto final
-            const currentX = lerp(heroCenterX, storyCenterX, progress)
-            const currentYPage = lerp(heroCenterPage, storyCenterPage, progress)
+            // Cuando progress > 1, la posición se mantiene en el story (no sigue moviéndose)
+            // Solo usamos progress hasta 1 para la interpolación de posición
+            const positionProgress = Math.min(progress, 1)
+            const currentX = lerp(heroCenterX, storyCenterX, positionProgress)
+            const currentYPage = lerp(heroCenterPage, storyCenterPage, positionProgress)
             // Convierte la Y del espacio de página a Y en el viewport restando scrollY. Esto compensa para que la barra siga mostrándose en el viewport
             // Si esto no estuviera, la barra se fuera a las coordenadas originales del centro del story, las cuales están fuera de pantalla
             const currentYViewport = currentYPage - window.scrollY
