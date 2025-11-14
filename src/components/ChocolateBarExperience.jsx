@@ -22,6 +22,7 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     const groupRef = useRef()
     const leftHalfRef = useRef()
     const rightHalfRef = useRef()
+    const fillingRef = useRef()
 
     // get canvas size, camera and clock from useThree
     const { size, camera, clock } = useThree()
@@ -67,7 +68,7 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     // Ahora que progress puede ir más allá de 1, podemos usar directamente (progress - 1)
     // para controlar la separación de manera más precisa y suave
     const splitProgress = Math.max(0, progress - 1) // Progreso de separación basado en scroll después de progress = 1
-    const separationDistance = (splitProgress * 1.75) - 0.25// Distancia de separación en unidades 3D (ajustable)
+    const separationDistance = (splitProgress * 1.25) - 0.25// Distancia de separación en unidades 3D (ajustable)
 
     // useFrame se llama en cada frame de render por react-three-fiber
     useFrame(() => {
@@ -101,7 +102,7 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
             rightHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(0.5))
             
             // Aplicamos rotación adicional en Z basada en el progreso de separación
-            const zRotation = splitProgress * 0.3 // Rotación en Z que aumenta con el scroll (ajustable)
+            const zRotation = splitProgress * 0.15 // Rotación en Z que aumenta con el scroll (ajustable)
             const zRotationQ = new THREE.Quaternion().setFromAxisAngle(axisZ, zRotation)
             const clockwiseFinalRotationWithZ = finalQ.clone().multiply(zRotationQ.clone().invert())
             const anticlockwiseFinalRotationWithZ = finalQ.clone().multiply(zRotationQ)
@@ -109,17 +110,35 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
             // Aplicamos la rotación a ambas mitades
             leftHalfRef.current.quaternion.copy(clockwiseFinalRotationWithZ)
             rightHalfRef.current.quaternion.copy(anticlockwiseFinalRotationWithZ)
+            
+            if (fillingRef.current) {
+                fillingRef.current.quaternion.copy(finalQ)
+                fillingRef.current.position.set(0, 0, 0)
+            }
         }
     })
 
     // Cargar los modelos
     const fullBarGltf = useGLTF('barra-prueba.glb')
     const halfGltf = useGLTF('mitad-chocolate.glb')
+    const fillingGltf = useGLTF('relleno-chocolate.glb')
 
     // Clonar las escenas una sola vez usando useMemo para evitar recrearlas en cada render
     const fullBarScene = useMemo(() => fullBarGltf.scene.clone(), [fullBarGltf.scene])
     const leftHalfScene = useMemo(() => halfGltf.scene.clone(), [halfGltf.scene])
     const rightHalfScene = useMemo(() => halfGltf.scene.clone(), [halfGltf.scene])
+    const fillingScene = useMemo(() => {
+        const cloned = fillingGltf.scene.clone()
+        const greenMaterial = new THREE.MeshStandardMaterial({ 
+            color: '#245e26',
+            metalness: 0.1,
+            roughness: 0.7
+        })
+        cloned.traverse((child) => {
+            if (child.isMesh) child.material = greenMaterial
+        })
+        return cloned
+    }, [fillingGltf.scene])
 
     return (
         <group ref={groupRef}>
@@ -145,6 +164,11 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
                                 object={rightHalfScene} 
                                 scale={modelScale}
                             />
+                        </group>
+                    </group>
+                    <group ref={fillingRef}>
+                        <group rotation={[0, Math.PI/2, 0]}>
+                            <primitive object={fillingScene} scale={modelScale * 1.3} />
                         </group>
                     </group>
                 </>
