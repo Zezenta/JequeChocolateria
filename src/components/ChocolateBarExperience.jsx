@@ -17,26 +17,30 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 const lerp = (start, end, t) => start + (end - start) * t;
 
 // --- RIG QUE MUEVE LA BARRA EN FUNCIÓN DEL SCROLL ---
+// progress < 1: Muestra barra completa que rota y se mueve siguiendo el scroll
+// progress >= 1: Muestra dos mitades separadas que se alejan progresivamente
 function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
-    // referencia al grupo de objetos 3D que contiene la barra
-    const groupRef = useRef()
-    const leftHalfRef = useRef()
-    const rightHalfRef = useRef()
-    const fillingRef = useRef()
+    const groupRef = useRef() // Grupo padre que contiene toda la barra (controla posición global)
+    const leftHalfRef = useRef() // Ref de la mitad izquierda
+    const rightHalfRef = useRef() // Ref de la mitad derecha
+    const fillingRef = useRef() // Ref del relleno
+    const { size, camera } = useThree() // Contexto de Three.js
 
-    // get canvas size, camera and clock from useThree
-    const { size, camera, clock } = useThree()
-
-    // Convierte coordenadas de pantalla (en píxeles) a coordenadas en el mundo 3D
-    // tomando como referencia un plano z = zPlane.
-    // - xPx, yPx: posición en píxeles en el viewport
-    // - z: coordenada z en mundo donde queremos proyectar el punto
+    /**
+     * Convierte coordenadas de pantalla (píxeles) a coordenadas del mundo 3D.
+     * Three.js y el DOM usan sistemas de coordenadas distintos:
+     * - DOM: (0,0) arriba-izquierda, Y hacia abajo.
+     * - Three.js: (0,0,0) centro, Y hacia arriba.
+     * - Pasa los píxeles de pantalla a coordenadas normalizadas [-1, 1] (NDC).
+     * - Usa unproject() para llevar el punto al espacio 3D según la cámara.
+     * - Calcula dónde ese punto corta un plano Z específico.
+     * @returns {THREE.Vector3} Coordenada en el mundo 3D
+     */
     const screenToWorld = (xPx, yPx, z = 0) => {
-        // ndc: Normalized Device Coordinates, rango [-1, 1] en x,y
         const ndc = new THREE.Vector3(
-            (xPx / size.width) * 2 - 1,
-            -(yPx / size.height) * 2 + 1,
-            0.5
+            (xPx / size.width) * 2 - 1,      // X: normaliza y mapea a [-1, 1]
+            -(yPx / size.height) * 2 + 1,    // Y: normaliza, invierte y mapea a [1, -1]
+            0.5                              // Z: profundidad intermedia en NDC
         )
 
         // Proyecta el vector NDC hacia el espacio del mundo
@@ -52,68 +56,110 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
         return camera.position.clone().add(dir.multiplyScalar(distance))
     }
 
-    // Crear referencias de los objetos THREEJS una sola vez
-    // Se crean para cada eje, un Quaternion y un Vector3 (eje)
+    // Quaternions para rotaciones individuales en cada eje
+    // Estos se mutan en cada frame con setFromAxisAngle()
     const qx = useMemo(() => new THREE.Quaternion(), [])
-    const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), []) //isnt really used but whatever
     const qy = useMemo(() => new THREE.Quaternion(), [])
-    const axisY = useMemo(() => new THREE.Vector3(0, 1, 0), [])
     const qz = useMemo(() => new THREE.Quaternion(), [])
-    const axisZ = useMemo(() => new THREE.Vector3(0, 0, 1), [])
     const finalQ = useMemo(() => new THREE.Quaternion(), [])
+    
+    // Vectores que definen los ejes de rotación (en coordenadas del mundo)
+    // Estos son constantes y se usan para crear rotaciones alrededor de cada eje
+    const axisX = useMemo(() => new THREE.Vector3(1, 0, 0), [])
+    const axisY = useMemo(() => new THREE.Vector3(0, 1, 0), [])
+    const axisZ = useMemo(() => new THREE.Vector3(0, 0, 1), [])
 
-    // Determina si debemos mostrar las mitades (cuando progress >= 1)
+    // Determina si debemos mostrar las mitades separadas (progress >= 1)
+    // Cuando progress < 1, mostramos la barra completa rotando
     const showHalves = progress >= 1
     // Progreso de separación: 0 cuando progress = 1, aumenta después
-    // Ahora que progress puede ir más allá de 1, podemos usar directamente (progress - 1)
-    // para controlar la separación de manera más precisa y suave
-    const splitProgress = Math.max(0, progress - 1) // Progreso de separación basado en scroll después de progress = 1
-    const separationDistance = (splitProgress * 1.25) - 0.25// Distancia de separación en unidades 3D (ajustable)
+    const splitProgress = Math.max(0, progress - 1)
+    
+    // La distancia de separación aumenta con el scroll
+    const separationDistance = (splitProgress * 1.25) - 0.25
 
-    // useFrame se llama en cada frame de render por react-three-fiber
+    // useFrame es un hook de react-three-fiber que se ejecuta en cada frame de renderizado.
     useFrame(() => {
         if (!groupRef.current) return
 
-        // Calcula la posición objetivo en el mundo 3D a partir de la posición en pantalla
+        // Calcula la posición objetivo en el mundo 3D a partir de las coordenadas de pantalla
         const target = screenToWorld(screen.x, screen.y, zPlane)
 
-        // Interpola suavemente la posición actual hacia la target (movimiento suave)
-        groupRef.current.position.lerp(target, 0.2)
+        // LERP (Linear Interpolation) para movimiento suave
+        // En cada frame el 25% de la distancia entre la posición actual y la posición objetivo
+        groupRef.current.position.lerp(target, 0.25)
         
-        // Aplicando las instrucciones de optimización:
-        // Usamos progress = 1 para la rotación cuando mostramos las mitades (mantiene la barra horizontal)
+        // Puede ser entre 0 y máximo 1 (progress >= 1)
         const rotationProgress = showHalves ? 1 : progress
+        
+        // Crear quaternions de rotación para cada eje usando setFromAxisAngle()
+        // setFromAxisAngle(eje, ángulo) crea una rotación alrededor de un eje específico. setFromAxisAngle() recibe el eje que es un vector y el ángulo en radianes.
+        qx.setFromAxisAngle(axisX, rotationProgress * Math.PI / 6)
         qy.setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (rotationProgress * (Math.PI/2 - 0.5))) - rotationProgress * Math.PI)
         qz.setFromAxisAngle(axisZ, (Math.PI/2) - (rotationProgress * (Math.PI/2)))
+        
+        /**
+         * Para combinar múltiples rotaciones, multiplicamos quaternions.
+         * IMPORTANTE: La multiplicación de quaternions NO es conmutativa (A * B ≠ B * A)
+         */
+        
+        // Calculamos la rotación base COMPLETA antes de mutar finalQ
+        // Esto es necesario porque las mitades necesitan esta rotación base
+        // y no podemos mutar finalQ antes de calcularla
+        const baseQx = new THREE.Quaternion().setFromAxisAngle(axisX, rotationProgress * Math.PI / 6)
+        const baseQy = new THREE.Quaternion().setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (rotationProgress * (Math.PI/2 - 0.5))) - rotationProgress * Math.PI)
+        const baseQz = new THREE.Quaternion().setFromAxisAngle(axisZ, (Math.PI/2) - (rotationProgress * (Math.PI/2)))
+        const baseRotation = new THREE.Quaternion().multiplyQuaternions(baseQx, baseQy).multiply(baseQz)
+        
+        // Ahora sí mutamos finalQ para el grupo principal
+        // Este será usado solo cuando NO estamos mostrando las mitades
         finalQ.multiplyQuaternions(qx, qy).multiply(qz)
+        
+        // En Three.js, Object3D.quaternion controla la rotación del objeto.
+        // copy() copia los valores del quaternion sin crear una nueva referencia.
+        if (!showHalves) {
+            // Barra completa: aplicamos la rotación compuesta al grupo padre
+            groupRef.current.quaternion.copy(finalQ)
+        } else {
+            // Mitades separadas: el grupo padre no tiene rotación
+            // identity() establece el quaternion a "sin rotación" (1, 0, 0, 0)
+            // Las mitades individuales tendrán su propia rotación completa
+            groupRef.current.quaternion.identity()
+        }
 
-        groupRef.current.quaternion.copy(finalQ)
-
-        // Si estamos mostrando las mitades, aplicamos la separación
         if (showHalves && leftHalfRef.current && rightHalfRef.current) {
-            // Calculamos la dirección de separación
-            // La separación debe ser perpendicular al eje largo de la barra
-            // Asumimos que la barra se extiende a lo largo del eje Y en su orientación local
-            // Por lo tanto, separamos a lo largo del eje X local
+            // Vector de separación
             const localSeparation = new THREE.Vector3(separationDistance, 0, 0)
 
-            // Aplicamos la separación simétrica: una mitad se mueve en una dirección, la otra en la opuesta
+            // Aplicar separación simétrica
+            // Las mitades se mueven en direcciones opuestas desde el centro
             leftHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(-0.5))
             rightHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(0.5))
             
-            // Aplicamos rotación adicional en Z basada en el progreso de separación
-            const zRotation = splitProgress * 0.15 // Rotación en Z que aumenta con el scroll (ajustable)
-            const zRotationQ = new THREE.Quaternion().setFromAxisAngle(axisZ, zRotation)
-            const clockwiseFinalRotationWithZ = finalQ.clone().multiply(zRotationQ.clone().invert())
-            const anticlockwiseFinalRotationWithZ = finalQ.clone().multiply(zRotationQ)
+            // Vector de rotación en el espacio local
+            // Transformar el eje Z al espacio local de la barra usando applyQuaternion()
+            // Pasa que el eje Z después de las rotaciones queda invertido y un poco inclinado, por lo que hay que compensar
+            const localAxisZ = new THREE.Vector3(0, 0, 1).clone().applyQuaternion(baseRotation)
+            // Ángulo de rotación que aumenta con el progreso de separación
+            const zRotation = splitProgress * 0.15
+            // Crear quaternions de rotación para cada mitad. Nótese que las rotaciones son opuestas a como deberían ser, ya que el eje Z se invierte y se inclina
+            const zRotationQLeft = new THREE.Quaternion().setFromAxisAngle(localAxisZ, -zRotation)
+            const zRotationQRight = new THREE.Quaternion().setFromAxisAngle(localAxisZ, zRotation)
             
-            // Aplicamos la rotación a ambas mitades
-            leftHalfRef.current.quaternion.copy(clockwiseFinalRotationWithZ)
-            rightHalfRef.current.quaternion.copy(anticlockwiseFinalRotationWithZ)
+            // Componer rotaciones: primero baseRotation, luego rotación en Z
+            // multiplyQuaternions(a, b) = a * b (aplica primero b, luego a)
+            // Entonces: zRotationQ * baseRotation aplica primero baseRotation, luego zRotationQ
+            const leftRotation = new THREE.Quaternion().multiplyQuaternions(zRotationQLeft, baseRotation)
+            const rightRotation = new THREE.Quaternion().multiplyQuaternions(zRotationQRight, baseRotation)
             
+            // Aplicar rotación completa a cada mitad
+            leftHalfRef.current.quaternion.copy(leftRotation)
+            rightHalfRef.current.quaternion.copy(rightRotation)
+            
+            // El relleno mantiene solo la rotación base (sin rotación adicional en Z)
+            // Esto hace que se mantenga "plano" entre las mitades
             if (fillingRef.current) {
-                fillingRef.current.quaternion.copy(finalQ)
-                fillingRef.current.position.set(0, 0, 0)
+                fillingRef.current.quaternion.copy(baseRotation)
             }
         }
     })
@@ -130,9 +176,9 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     const fillingScene = useMemo(() => {
         const cloned = fillingGltf.scene.clone()
         const greenMaterial = new THREE.MeshStandardMaterial({ 
-            color: '#245e26',
-            metalness: 0.1,
-            roughness: 0.7
+            color: '#b5a007',
+            metalness: 0,
+            roughness: 1
         })
         cloned.traverse((child) => {
             if (child.isMesh) child.material = greenMaterial
@@ -152,14 +198,16 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
                 // Mostrar dos mitades cuando progress >= 1
                 <>
                     <group ref={leftHalfRef}>
-                        <primitive 
-                            object={leftHalfScene} 
-                            scale={modelScale}
-                        />
+                        <group position={[0, 0.1, 0]}>
+                            <primitive 
+                                object={leftHalfScene} 
+                                scale={modelScale}
+                            />
+                        </group>
                     </group>
                     <group ref={rightHalfRef}>
                         {/* Rotamos 180 grados en Y para que sea la otra mitad (simétrica) */}
-                        <group rotation={[0, Math.PI, 0]}>
+                        <group rotation={[0, Math.PI, 0]} position={[0, 0.1, 0]}>
                             <primitive 
                                 object={rightHalfScene} 
                                 scale={modelScale}
@@ -167,7 +215,7 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
                         </group>
                     </group>
                     <group ref={fillingRef}>
-                        <group rotation={[0, Math.PI/2, 0]}>
+                        <group rotation={[0, Math.PI/2, 0]} position={[0, 0, 0]}>
                             <primitive object={fillingScene} scale={modelScale * 1.3} />
                         </group>
                     </group>
