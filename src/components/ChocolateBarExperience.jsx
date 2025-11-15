@@ -10,6 +10,12 @@ const getDeviceScale = (width) => {
     return 0.3
 }
 
+// Detecta si es un dispositivo móvil
+const isMobile = () => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+}
+
 // Limita un número a un máximo o un mínimo
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
@@ -26,6 +32,24 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     const fillingRef = useRef() // Ref del relleno
     const { size, camera } = useThree() // Contexto de Three.js
 
+    // Objetos reutilizables para evitar crear nuevos en cada frame (reduce GC)
+    const ndcVec = useMemo(() => new THREE.Vector3(), []) // Proyección del punto en el espacio 3D
+    const dirVec = useMemo(() => new THREE.Vector3(), []) // Dirección desde la cámara hacia el punto proyectado
+    const targetVec = useMemo(() => new THREE.Vector3(), []) // Posición objetivo en el espacio 3D
+
+    const baseQx = useMemo(() => new THREE.Quaternion(), []) // Rotación base en el eje X
+    const baseQy = useMemo(() => new THREE.Quaternion(), []) // Rotación base en el eje Y
+    const baseQz = useMemo(() => new THREE.Quaternion(), []) // Rotación base en el eje Z   
+    const baseRotation = useMemo(() => new THREE.Quaternion(), []) // Rotación base completa
+
+    const localSeparationVec = useMemo(() => new THREE.Vector3(), []) // Separación entre las mitades
+    const localAxisZVec = useMemo(() => new THREE.Vector3(0, 0, 1), []) // Eje Z en el espacio local
+
+    const zRotationQLeft = useMemo(() => new THREE.Quaternion(), []) // Rotación en el eje Z para la mitad izquierda
+    const zRotationQRight = useMemo(() => new THREE.Quaternion(), []) // Rotación en el eje Z para la mitad derecha
+    const leftRotation = useMemo(() => new THREE.Quaternion(), []) // Rotación completa en la mitad izquierda
+    const rightRotation = useMemo(() => new THREE.Quaternion(), []) // Rotación completa en la mitad derecha
+
     /**
      * Convierte coordenadas de pantalla (píxeles) a coordenadas del mundo 3D.
      * Three.js y el DOM usan sistemas de coordenadas distintos:
@@ -34,26 +58,29 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
      * - Pasa los píxeles de pantalla a coordenadas normalizadas [-1, 1] (NDC).
      * - Usa unproject() para llevar el punto al espacio 3D según la cámara.
      * - Calcula dónde ese punto corta un plano Z específico.
-     * @returns {THREE.Vector3} Coordenada en el mundo 3D
+     * @returns {THREE.Vector3} Coordenada en el mundo 3D (reutiliza targetVec)
      */
     const screenToWorld = (xPx, yPx, z = 0) => {
-        const ndc = new THREE.Vector3(
+        // Reutilizar ndcVec en lugar de crear uno nuevo
+        ndcVec.set(
             (xPx / size.width) * 2 - 1,      // X: normaliza y mapea a [-1, 1]
             -(yPx / size.height) * 2 + 1,    // Y: normaliza, invierte y mapea a [1, -1]
             0.5                              // Z: profundidad intermedia en NDC
         )
 
         // Proyecta el vector NDC hacia el espacio del mundo
-        ndc.unproject(camera)
+        ndcVec.unproject(camera)
 
         // Calcula la dirección desde la cámara hacia el punto proyectado
-        const dir = ndc.sub(camera.position).normalize()
+        // Reutilizar dirVec
+        dirVec.copy(ndcVec).sub(camera.position).normalize()
 
         // Calcula la distancia a lo largo de la dirección hasta el plano zPlane
-        const distance = (z - camera.position.z) / dir.z
+        const distance = (z - camera.position.z) / dirVec.z
 
-        // Devuelve la posición en coordenadas del mundo 3D
-        return camera.position.clone().add(dir.multiplyScalar(distance))
+        // Reutilizar targetVec en lugar de crear uno nuevo
+        targetVec.copy(camera.position).add(dirVec.multiplyScalar(distance))
+        return targetVec
     }
 
     // Quaternions para rotaciones individuales en cada eje
@@ -78,6 +105,9 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     // La distancia de separación aumenta con el scroll
     const separationDistance = (splitProgress * 1.25) - 0.25
 
+    // Factor LERP adaptativo: más alto en móvil para compensar frames perdidos
+    const lerpFactor = isMobile() ? 0.45 : 0.25
+
     // useFrame es un hook de react-three-fiber que se ejecuta en cada frame de renderizado.
     useFrame(() => {
         if (!groupRef.current) return
@@ -86,8 +116,8 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
         const target = screenToWorld(screen.x, screen.y, zPlane)
 
         // LERP (Linear Interpolation) para movimiento suave
-        // En cada frame el 25% de la distancia entre la posición actual y la posición objetivo
-        groupRef.current.position.lerp(target, 0.25)
+        // Factor más alto en móvil (0.45) para compensar frames perdidos y hacer la animación más responsiva
+        groupRef.current.position.lerp(target, lerpFactor)
         
         // Puede ser entre 0 y máximo 1 (progress >= 1)
         const rotationProgress = showHalves ? 1 : progress
@@ -103,13 +133,13 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
          * IMPORTANTE: La multiplicación de quaternions NO es conmutativa (A * B ≠ B * A)
          */
         
-        // Calculamos la rotación base COMPLETA antes de mutar finalQ
+        // Calculamos la rotación base COMPLETA reutilizando quaternions en lugar de crear nuevos
         // Esto es necesario porque las mitades necesitan esta rotación base
         // y no podemos mutar finalQ antes de calcularla
-        const baseQx = new THREE.Quaternion().setFromAxisAngle(axisX, rotationProgress * Math.PI / 6)
-        const baseQy = new THREE.Quaternion().setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (rotationProgress * (Math.PI/2 - 0.5))) - rotationProgress * Math.PI)
-        const baseQz = new THREE.Quaternion().setFromAxisAngle(axisZ, (Math.PI/2) - (rotationProgress * (Math.PI/2)))
-        const baseRotation = new THREE.Quaternion().multiplyQuaternions(baseQx, baseQy).multiply(baseQz)
+        baseQx.setFromAxisAngle(axisX, rotationProgress * Math.PI / 6)
+        baseQy.setFromAxisAngle(axisY, ((Math.PI/2 - 0.5) - (rotationProgress * (Math.PI/2 - 0.5))) - rotationProgress * Math.PI)
+        baseQz.setFromAxisAngle(axisZ, (Math.PI/2) - (rotationProgress * (Math.PI/2)))
+        baseRotation.multiplyQuaternions(baseQx, baseQy).multiply(baseQz)
         
         // Ahora sí mutamos finalQ para el grupo principal
         // Este será usado solo cuando NO estamos mostrando las mitades
@@ -128,29 +158,33 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
         }
 
         if (showHalves && leftHalfRef.current && rightHalfRef.current) {
-            // Vector de separación
-            const localSeparation = new THREE.Vector3(separationDistance, 0, 0)
+            // Vector de separación - reutilizar localSeparationVec
+            localSeparationVec.set(separationDistance, 0, 0)
 
             // Aplicar separación simétrica
             // Las mitades se mueven en direcciones opuestas desde el centro
-            leftHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(-0.5))
-            rightHalfRef.current.position.copy(localSeparation.clone().multiplyScalar(0.5))
+            // Usar copy() para evitar mutar el vector original
+            leftHalfRef.current.position.copy(localSeparationVec).multiplyScalar(-0.5)
+            rightHalfRef.current.position.copy(localSeparationVec).multiplyScalar(0.5)
             
             // Vector de rotación en el espacio local
             // Transformar el eje Z al espacio local de la barra usando applyQuaternion()
             // Pasa que el eje Z después de las rotaciones queda invertido y un poco inclinado, por lo que hay que compensar
-            const localAxisZ = new THREE.Vector3(0, 0, 1).clone().applyQuaternion(baseRotation)
+            // Reutilizar localAxisZVec
+            localAxisZVec.set(0, 0, 1).applyQuaternion(baseRotation)
             // Ángulo de rotación que aumenta con el progreso de separación
             const zRotation = splitProgress * 0.15
             // Crear quaternions de rotación para cada mitad. Nótese que las rotaciones son opuestas a como deberían ser, ya que el eje Z se invierte y se inclina
-            const zRotationQLeft = new THREE.Quaternion().setFromAxisAngle(localAxisZ, -zRotation)
-            const zRotationQRight = new THREE.Quaternion().setFromAxisAngle(localAxisZ, zRotation)
+            // Reutilizar quaternions en lugar de crear nuevos
+            zRotationQLeft.setFromAxisAngle(localAxisZVec, -zRotation)
+            zRotationQRight.setFromAxisAngle(localAxisZVec, zRotation)
             
             // Componer rotaciones: primero baseRotation, luego rotación en Z
             // multiplyQuaternions(a, b) = a * b (aplica primero b, luego a)
             // Entonces: zRotationQ * baseRotation aplica primero baseRotation, luego zRotationQ
-            const leftRotation = new THREE.Quaternion().multiplyQuaternions(zRotationQLeft, baseRotation)
-            const rightRotation = new THREE.Quaternion().multiplyQuaternions(zRotationQRight, baseRotation)
+            // Reutilizar leftRotation y rightRotation
+            leftRotation.multiplyQuaternions(zRotationQLeft, baseRotation)
+            rightRotation.multiplyQuaternions(zRotationQRight, baseRotation)
             
             // Aplicar rotación completa a cada mitad
             leftHalfRef.current.quaternion.copy(leftRotation)
@@ -232,18 +266,17 @@ useGLTF.preload('mitad-chocolate.glb');
 
 // --- ESCENA 3D ESTÁTICA ---
 function Scene({ progress, screen, scale }) {
+    const mobile = isMobile()
+    
     return (
         <Canvas
             // RENDIMIENTO: `dpr` (Device Pixel Ratio) renderiza a una resolución mayor en pantallas de alta densidad.
-            // Bajarlo a `1` puede mejorar mucho el rendimiento en GPUs de gama baja.
-            dpr={[1, 1.5]}
-            // RENDIMIENTO: `antialias` suaviza los bordes, pero consume recursos de la GPU.
-            // Desactivarlo (`false`) puede aumentar los FPS.
-            gl={{ antialias: true }}
+            // En móvil limitamos a 1 para mejor rendimiento, en desktop permitimos hasta 1.5
+            dpr={mobile ? 1 : [1, 1.5]}
             camera={{ fov: 38, position: [0, 0, 8] }}
             // RENDIMIENTO: El cálculo de sombras dinámicas es una de las operaciones más costosas.
-            // Desactivarlo (`shadows={false}`) es una prueba clave para medir el impacto en el rendimiento.
-            shadows
+            // Desactivado en móvil para mejorar rendimiento
+            shadows={!mobile}
         >
             <ambientLight intensity={0.2} color="#ffffff" />
 
@@ -252,9 +285,9 @@ function Scene({ progress, screen, scale }) {
                 position={[1.5, 2.8, 4]}
                 intensity={1.3}
                 color="#ffdcc3"
-                castShadow
-                shadow-mapSize-width={2048}
-                shadow-mapSize-height={2048}
+                castShadow={!mobile}
+                shadow-mapSize-width={mobile ? 1024 : 2048}
+                shadow-mapSize-height={mobile ? 1024 : 2048}
                 shadow-bias={-0.001}
             />
 
@@ -272,7 +305,7 @@ function Scene({ progress, screen, scale }) {
                 color="#e7f2ff"
             />
 
-            <Environment resolution={256}>
+            <Environment resolution={mobile ? 128 : 256}>
                 <Lightformer
                     form="rect"
                     intensity={2}
@@ -307,6 +340,10 @@ export default function ChocolateBarExperience() {
         if (typeof window === 'undefined') return
 
         let frame = null
+        let lastUpdateTime = 0
+        const mobile = isMobile()
+        // Throttle más agresivo en móvil: mínimo 16ms entre updates (60fps), en desktop permitimos más frecuencia
+        const throttleMs = mobile ? 16 : 8
 
         // update: calcula la posición objetivo y el progreso según el scroll
         // - Obtiene dos elementos en la página: 'bar-stage-hero' y 'bar-stage-story'
@@ -316,6 +353,15 @@ export default function ChocolateBarExperience() {
             // marca que no hay frame pendiente (vamos a consumirlo ahora)
             frame = null
 
+            // Throttle: evita ejecutar demasiado frecuentemente, especialmente en móvil
+            const now = performance.now()
+            if (now - lastUpdateTime < throttleMs) {
+                // Si pasó muy poco tiempo, reprogramar para el siguiente frame
+                frame = requestAnimationFrame(update)
+                return
+            }
+            lastUpdateTime = now
+
             // Elementos en el DOM que actúan como puntos de referencia
             const heroEl = document.getElementById('bar-stage-hero')
             const storyEl = document.getElementById('bar-stage-story')
@@ -323,6 +369,7 @@ export default function ChocolateBarExperience() {
             
             // RENDIMIENTO: `getBoundingClientRect()` fuerza al navegador a recalcular el layout de la página.
             // Aunque se usa con `requestAnimationFrame`, en CPUs lentas y con scroll rápido, puede contribuir a la ralentización.
+            // Throttle ayuda a reducir la frecuencia de estas llamadas costosas
             const heroRect = heroEl.getBoundingClientRect()
             const storyRect = storyEl.getBoundingClientRect()
 
