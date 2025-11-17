@@ -43,7 +43,7 @@ const Products = () => (
                         Barras listas para góndola, pedidos corporativos y
                         e-commerce especializado.
                     </h2>
-                    <p className="text-base leading-relaxed text-gray-200 sm:text-lg">
+                    <p className="text-base leading-relaxed text-gray-200 sm:text-lg tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
                         Empaques con sellado hermético, información nutricional
                         y códigos para inventario. Mantén el look artesanal
                         mientras escalas a supermercados gourmet, tiendas duty
@@ -82,7 +82,7 @@ const Products = () => (
                                     {product.badge}
                                 </span>
                             </div>
-                            <p className="text-sm leading-relaxed text-gray-300">
+                            <p className="text-sm leading-relaxed text-gray-300 tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">
                                 {product.description}
                             </p>
                         </div>

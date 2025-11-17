@@ -21,7 +21,7 @@ const Hero = () => {
                     <h1 className="font-serif text-5xl leading-tight text-[#D4AF37] sm:text-6xl xl:text-7xl">
                         Chocolate artesanal para supermercados premium
                     </h1>
-                    <p className="text-base leading-relaxed text-gray-200 sm:text-lg">
+                    <p className="text-base leading-relaxed text-gray-200 sm:text-lg tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
                         Barras de chocolate ecuatoriano 60% rellenas de pistacho
                         y kunafa inspiradas en Dubái, pensadas para
                         supermercados premium, cadenas concept y pedidos

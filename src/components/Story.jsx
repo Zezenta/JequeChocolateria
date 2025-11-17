@@ -14,7 +14,7 @@ const Story = () => (
             <h2 className="font-serif text-5xl leading-tight text-[#F6EACC] sm:text-6xl">
                 Con relleno de pistacho y kunafa.
             </h2>
-            <p className="max-w-2xl text-base leading-relaxed text-gray-200 sm:text-lg">
+            <p className="max-w-2xl text-base leading-relaxed text-gray-200 sm:text-lg tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
                 Texturas crujientes y cremosas en un solo bocado: capas de
                 pistacho, hebras de kunafa caramelizada y cacao ecuatoriano con
                 templado espejo para destacar en góndola.

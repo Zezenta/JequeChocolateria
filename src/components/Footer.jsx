@@ -5,14 +5,14 @@ const Footer = () => (
                 <p className="font-serif text-lg text-[#D4AF37]">
                     Jeque Chocolatería
                 </p>
-                <p className="mt-1 text-gray-500">
+                <p className="mt-1 text-gray-500 tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">
                     Sabores de Dubái, hechos en Cuenca.
                 </p>
             </div>
             <div className="space-y-2 text-xs uppercase tracking-[0.35em] text-gray-500">
-                <p>ventas@jequechocolateria.com</p>
-                <p>Cuenca, Ecuador</p>
-                <p>Distribución: Ecuador · Colombia · Perú</p>
+                <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">ventas@jequechocolateria.com</p>
+                <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">Cuenca, Ecuador</p>
+                <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">Distribución: Ecuador · Colombia · Perú</p>
             </div>
         </div>
     </footer>

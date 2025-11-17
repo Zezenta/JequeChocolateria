@@ -18,7 +18,7 @@ const Distributors = () => (
                         Endulza tu góndola con chocolates premium
                     </h2>
                 </div>
-                <p className="text-base leading-relaxed text-gray-200 sm:text-lg break-words">
+                <p className="text-base leading-relaxed text-gray-200 sm:text-lg break-words tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
                     Proveemos fichas técnicas, empaques listos para retail y
                     planogramas sugeridos. Gestionamos cadena de frío,
                     merchandising modular y despachos programados para
@@ -32,7 +32,7 @@ const Distributors = () => (
                         <p className="mt-3 font-serif text-2xl text-[#D4AF37]">
                             Retail selecto
                         </p>
-                        <p className="mt-2 text-sm text-gray-400 break-words">
+                        <p className="mt-2 text-sm text-gray-400 break-words tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">
                             Megamaxi Gourmet, La Favorita Concept, marketplaces
                             especializados.
                         </p>
@@ -44,7 +44,7 @@ const Distributors = () => (
                         <p className="mt-3 font-serif text-2xl text-[#D4AF37]">
                             Material POP
                         </p>
-                        <p className="mt-2 text-sm text-gray-400 break-words">
+                        <p className="mt-2 text-sm text-gray-400 break-words tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">
                             Degustaciones, exhibidores refrigerados y kits
                             corporativos personalizados.
                         </p>
@@ -61,7 +61,7 @@ const Distributors = () => (
                         Nombre
                         <input
                             type="text"
-                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-[#D4AF37]"
+                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
                             placeholder="Ingresa tu nombre"
                         />
                     </label>
@@ -69,7 +69,7 @@ const Distributors = () => (
                         Correo
                         <input
                             type="email"
-                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-[#D4AF37]"
+                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
                             placeholder="empresa@correo.com"
                         />
                     </label>
@@ -78,7 +78,7 @@ const Distributors = () => (
                     <label className="flex flex-col text-xs uppercase tracking-wider text-[#D4AF37]/70 lg:tracking-[0.3em]">
                         Provincia
                         <select
-                            className="mt-3 rounded-full border border-white/20 bg-[#1A1A1A] px-5 py-3 text-sm text-gray-100 outline-none transition focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] appearance-none"
+                            className="mt-3 rounded-full border border-white/20 bg-[#1A1A1A] px-5 py-3 text-sm text-gray-100 tracking-normal outline-none transition focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] appearance-none"
                             defaultValue=""
                         >
                             <option value="" disabled hidden>
@@ -234,7 +234,7 @@ const Distributors = () => (
                         Teléfono
                         <input
                             type="tel"
-                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-[#D4AF37]"
+                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
                             placeholder="+593..."
                         />
                     </label>
@@ -243,7 +243,7 @@ const Distributors = () => (
                     Mensaje
                     <textarea
                         rows="4"
-                        className="mt-3 rounded-3xl border border-white/20 bg-transparent px-5 py-4 text-sm text-gray-100 placeholder-gray-500 outline-none transition focus:border-[#D4AF37]"
+                        className="mt-3 rounded-3xl border border-white/20 bg-transparent px-5 py-4 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
                         placeholder="Cuéntanos qué necesitas"
                     />
                 </label>
