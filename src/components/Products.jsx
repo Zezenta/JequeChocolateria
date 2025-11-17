@@ -1,3 +1,8 @@
+import barratopping from '../assets/barratopping.png'
+import barracrunchy from '../assets/barracrunchy.png'
+import barradesigner from '../assets/barradesigner.png'
+import barradefault from '../assets/barradefault.png'
+
 // Each product card keeps a placeholder block where future imagery can go.
 const products = [
     {
@@ -5,24 +10,28 @@ const products = [
         description:
             'Dátiles Medjool caramelizados, pistacho tostado y cardamomo sobre cacao fino 72%.',
         badge: 'Formato 90 g',
+        image: barradefault,
     },
     {
         name: 'Oasis Pistacho',
         description:
             'Praliné de pistacho con crocante de caramelo y cacao andino para un final cremoso.',
         badge: 'Caja x12',
+        image: barradesigner,
     },
     {
         name: 'Sultán Noir',
         description:
             'Infusión de café árabe, naranja confitada y delicadas notas de cacao Zamora 70%.',
         badge: 'Lote continuo',
+        image: barracrunchy,
     },
     {
         name: 'Perla Rosa',
         description:
             'Chocolate ruby con agua de rosas, frambuesas liofilizadas y pétalos cristalizados.',
         badge: 'Novedad temporada',
+        image: barratopping,
     },
 ]
 
@@ -69,9 +78,11 @@ const Products = () => (
                         <div className="relative aspect-[5/6] overflow-hidden rounded-[2rem] bg-white/[0.06]">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_transparent_60%)]" />
                             <div className="absolute inset-4 rounded-[1.7rem] border border-white/12" />
-                            <span className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs uppercase tracking-[0.35em] text-[#E7DCC0]/80">
-                                Imagen del producto
-                            </span>
+                            <img
+                                src={product.image}
+                                alt={product.name}
+                                className="h-full w-full object-cover"
+                            />
                         </div>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
