@@ -69,35 +69,35 @@ const Products = () => (
                 </div>
             </div>
 
-            <div className="grid gap-10 lg:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-6 sm:gap-10 lg:grid-cols-2 xl:grid-cols-4">
                 {products.map((product) => (
                     <article
                         key={product.name}
-                        className="group relative flex h-full flex-col gap-6 overflow-hidden rounded-[2.75rem] border border-white/10 bg-white/[0.04] p-8 transition duration-500 ease-out hover:-translate-y-3 hover:bg-white/[0.08] hover:shadow-[0_60px_120px_-60px_rgba(212,175,55,0.45)]"
+                        className="group relative flex h-full flex-col gap-4 sm:gap-6 overflow-hidden rounded-2xl sm:rounded-[2.75rem] border border-white/10 bg-white/[0.04] p-5 sm:p-8 transition duration-500 ease-out hover:-translate-y-3 hover:bg-white/[0.08] hover:shadow-[0_60px_120px_-60px_rgba(212,175,55,0.45)]"
                     >
-                        <div className="relative aspect-[5/6] overflow-hidden rounded-[2rem] bg-white/[0.06]">
+                        <div className="relative aspect-[4/5] sm:aspect-[5/6] overflow-hidden rounded-xl sm:rounded-[2rem] bg-white/[0.06]">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_transparent_60%)]" />
-                            <div className="absolute inset-4 rounded-[1.7rem] border border-white/12" />
+                            <div className="absolute inset-2 sm:inset-4 rounded-lg sm:rounded-[1.7rem] border border-white/12" />
                             <img
                                 src={product.image}
                                 alt={product.name}
                                 className="h-full w-full object-cover"
                             />
                         </div>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <h3 className="font-serif text-2xl text-[#D4AF37]">
+                        <div className="space-y-2 sm:space-y-3">
+                            <div className="flex items-center justify-between gap-2">
+                                <h3 className="font-serif text-xl sm:text-2xl text-[#D4AF37]">
                                     {product.name}
                                 </h3>
-                                <span className="rounded-full border border-white/10 px-3 py-1 text-[0.6rem] uppercase tracking-[0.35em] text-[#f3d479]/80">
+                                <span className="rounded-full border border-white/10 px-2 py-0.5 sm:px-3 sm:py-1 text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.35em] text-[#f3d479]/80 shrink-0">
                                     {product.badge}
                                 </span>
                             </div>
-                            <p className="text-sm leading-relaxed text-gray-300 tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">
+                            <p className="text-xs sm:text-sm leading-relaxed text-gray-300 tracking-wide drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">
                                 {product.description}
                             </p>
                         </div>
-                        <div className="mt-auto flex items-center justify-between text-xs uppercase tracking-[0.35em] text-[#f6e7c8]/70">
+                        <div className="mt-auto flex items-center justify-between text-[0.65rem] sm:text-xs uppercase tracking-[0.35em] text-[#f6e7c8]/70">
                             <span>Lista en 72h</span>
                         </div>
                     </article>

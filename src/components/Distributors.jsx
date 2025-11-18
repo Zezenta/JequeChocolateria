@@ -245,7 +245,7 @@ const Distributors = () => (
                     <textarea
                         rows="4"
                         maxLength={500}
-                        className="mt-3 flex-1 rounded-3xl border border-white/20 bg-transparent px-5 py-4 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37] resize-none overflow-y-auto lg:min-h-[6rem]"
+                        className="mt-3 flex-1 rounded-3xl border border-white/20 bg-transparent px-5 py-4 text-sm text-gray-100 placeholder-gray-500 tracking-normal placeholder:tracking-normal outline-none transition focus:border-[#D4AF37] resize-none overflow-y-auto lg:min-h-[6rem]"
                         placeholder="Cuéntanos qué necesitas"
                     />
                 </label>
