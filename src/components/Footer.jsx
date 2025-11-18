@@ -12,7 +12,7 @@ const Footer = () => (
             <div className="space-y-2 text-xs uppercase tracking-[0.35em] text-gray-500">
                 <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">ventas@jequechocolateria.com</p>
                 <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">Cuenca, Ecuador</p>
-                <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">Distribución: Ecuador · Colombia · Perú</p>
+                <p className="drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)]">Distribución en todo Ecuador</p>
             </div>
         </div>
     </footer>

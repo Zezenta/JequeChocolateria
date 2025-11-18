@@ -25,7 +25,7 @@ const Hero = () => {
                         Barras de chocolate ecuatoriano 60% rellenas de pistacho
                         y kunafa inspiradas en Dubái, pensadas para
                         supermercados premium, cadenas concept y pedidos
-                        corporativos.
+                        personalizados.
                     </p>
                     {/* Retail proof-points to support mass distribution use-case. */}
                     <div className="flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.35em] text-[#f6e7c8]/70">
@@ -44,7 +44,7 @@ const Hero = () => {
                             Cotiza pedidos
                         </a>
                         <span className="text-sm font-medium text-[#4CAF50]">
-                            Distribución: Ecuador · Colombia · Perú
+                            Distribución en todo Ecuador
                         </span>
                     </div>
                 </div>

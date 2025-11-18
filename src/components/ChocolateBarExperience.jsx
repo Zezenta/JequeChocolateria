@@ -210,9 +210,9 @@ function BarRig({ screen, progress, modelScale = 0.3, zPlane = 0 }) {
     const fillingScene = useMemo(() => {
         const cloned = fillingGltf.scene.clone()
         const greenMaterial = new THREE.MeshStandardMaterial({ 
-            color: '#b5a007',
-            metalness: 0,
-            roughness: 1
+            color: '#dffa34',
+            metalness: 0.7,
+            roughness: 0.25
         })
         cloned.traverse((child) => {
             if (child.isMesh) child.material = greenMaterial
