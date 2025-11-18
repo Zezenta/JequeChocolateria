@@ -1,5 +1,32 @@
 // Distributor form balances retail-friendly copy with lead capture.
-const Distributors = () => (
+import { useState } from 'react'
+
+const Distributors = () => {
+    const [phone, setPhone] = useState('')
+
+    const formatPhoneNumber = (value) => {
+        // Remove all non-numeric characters
+        const numbers = value.replace(/\D/g, '')
+        
+        // Limit to 10 digits
+        const limitedNumbers = numbers.slice(0, 10)
+        
+        // Format as XXX XXX XXXX
+        if (limitedNumbers.length <= 3) {
+            return limitedNumbers
+        } else if (limitedNumbers.length <= 6) {
+            return `${limitedNumbers.slice(0, 3)} ${limitedNumbers.slice(3)}`
+        } else {
+            return `${limitedNumbers.slice(0, 3)} ${limitedNumbers.slice(3, 6)} ${limitedNumbers.slice(6)}`
+        }
+    }
+
+    const handlePhoneChange = (e) => {
+        const formatted = formatPhoneNumber(e.target.value)
+        setPhone(formatted)
+    }
+
+    return (
     <section
         id="distribuidores"
         className="relative isolate overflow-hidden bg-gradient-to-b from-[#0a0302] via-[#150802]/82 to-[#0a0302] py-10 z-20"
@@ -62,7 +89,7 @@ const Distributors = () => (
                         Nombre
                         <input
                             type="text"
-                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
+                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 tracking-normal placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
                             placeholder="Ingresa tu nombre"
                         />
                     </label>
@@ -70,7 +97,7 @@ const Distributors = () => (
                         Correo
                         <input
                             type="email"
-                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
+                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 tracking-normal placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
                             placeholder="empresa@correo.com"
                         />
                     </label>
@@ -235,8 +262,11 @@ const Distributors = () => (
                         Teléfono
                         <input
                             type="tel"
-                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
-                            placeholder="+593..."
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            maxLength={12}
+                            className="mt-3 rounded-full border border-white/20 bg-transparent px-5 py-3 text-sm text-gray-100 placeholder-gray-500 tracking-normal placeholder:tracking-normal outline-none transition focus:border-[#D4AF37]"
+                            placeholder="099..."
                         />
                     </label>
                 </div>
@@ -244,8 +274,7 @@ const Distributors = () => (
                     Mensaje
                     <textarea
                         rows="4"
-                        maxLength={500}
-                        className="mt-3 flex-1 rounded-3xl border border-white/20 bg-transparent px-5 py-4 text-sm text-gray-100 placeholder-gray-500 tracking-normal placeholder:tracking-normal outline-none transition focus:border-[#D4AF37] resize-none overflow-y-auto lg:min-h-[6rem]"
+                        className="mt-3 flex-1 rounded-3xl border border-white/20 bg-transparent px-5 py-4 text-sm text-gray-100 placeholder-gray-500 tracking-normal placeholder:tracking-normal outline-none transition focus:border-[#D4AF37] resize-none overflow-y-auto lg:min-h-[6rem] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar]:bg-transparent [&::-webkit-scrollbar-track]:bg-[#0a0302]/80 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#2a2a2a]/80 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:bg-clip-padding [&::-webkit-scrollbar-thumb]:hover:bg-[#D4AF37]/40 [scrollbar-width:thin] [scrollbar-color:#2a2a2a_#0a0302]"
                         placeholder="Cuéntanos qué necesitas"
                     />
                 </label>
@@ -276,6 +305,7 @@ const Distributors = () => (
             </form>
         </div>
     </section>
-)
+    )
+}
 
 export default Distributors
